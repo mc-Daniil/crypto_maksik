@@ -1,2 +1,4 @@
-BOT_TOKEN = "8485738805:AAFN9eZHsSbWa0IcdvqA3e4l8inzEzZCgyU"
+with open("api.txt", "r", encoding="utf-8") as f:
+    BOT_TOKEN = f.read().strip()
+
 STICKER_PACK_ID = "maximxls"

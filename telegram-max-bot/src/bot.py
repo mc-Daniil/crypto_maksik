@@ -1,6 +1,6 @@
 import telebot
 import random
-from config import BOT_TOKEN, STICKER_PACK_ID  # STICKER_PACK_ID should be the sticker pack name, not a list
+from config import BOT_TOKEN, STICKER_PACK_ID
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
