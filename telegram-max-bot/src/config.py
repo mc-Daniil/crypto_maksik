@@ -1,0 +1,2 @@
+BOT_TOKEN = "8485738805:AAFN9eZHsSbWa0IcdvqA3e4l8inzEzZCgyU"
+STICKER_PACK_ID = "maximxls"
