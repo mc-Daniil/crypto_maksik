@@ -1,7 +1,0 @@
-version: '3.8'
-
-services:
-  maks-bot:
-    build: .
-    container_name: maks-bot
-    restart: always
