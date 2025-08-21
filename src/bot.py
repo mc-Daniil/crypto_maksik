@@ -18,6 +18,14 @@ except Exception as e:
 def check_message(message):
     print(message)
     text_lower = message.text.lower()
+    
+    KEYWORDS_LASOS = ['ласос', 'lasos']
+    FOUND_LASOS = None
+    for kw in KEYWORDS_LASOS:
+        if kw in text_lower:
+            FOUND_LASOS = True
+            break
+
     KEYWORDS_MAX = ['макс', 'max']
     FOUND_MAX = None
     for kw in KEYWORDS_MAX:
@@ -42,6 +50,13 @@ def check_message(message):
             bot.send_message(message.chat.id, "Sticker pack not found or empty.", reply_to_message_id=message.message_id)
     if FOUND_SOSAL:
         bot.send_message(message.chat.id, "lasos", reply_to_message_id=message.message_id)
+    if FOUND_LASOS:
+        with open('lasos.jpg', 'rb') as photo:
+            bot.send_photo(
+                message.chat.id,
+                photo,
+                reply_to_message_id=message.message_id
+            )
 
 
 if __name__ == '__main__':
