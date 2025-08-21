@@ -19,7 +19,7 @@ def check_message(message):
     print(message)
     text_lower = message.text.lower()
     
-    KEYWORDS_LASOS = ['ласос', 'lasos']
+    KEYWORDS_LASOS = ['ласос', 'lasos', 'losos', 'лосось']
     FOUND_LASOS = None
     for kw in KEYWORDS_LASOS:
         if kw in text_lower:
