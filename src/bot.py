@@ -17,14 +17,20 @@ except Exception as e:
 @bot.message_handler(func=lambda message: True)
 def check_message(message):
     print(message)
-    keywords = ['макс', 'max']
     text_lower = message.text.lower()
-    found = None
-    for kw in keywords:
+    KEYWORDS_MAX = ['макс', 'max']
+    FOUND_MAX = None
+    for kw in KEYWORDS_MAX:
         if kw in text_lower:
-            found = True
+            FOUND_MAX = True
             break
-    if found:
+    KEYWORDS_SOSAL = ['сосал', 'sosal']
+    FOUND_SOSAL = None
+    for kw in KEYWORDS_SOSAL:
+        if kw in text_lower:
+            FOUND_SOSAL = True
+            break
+    if FOUND_MAX:
         if sticker_file_ids:
             sticker = random.choice(sticker_file_ids)
             bot.send_sticker(
@@ -34,6 +40,9 @@ def check_message(message):
             )
         else:
             bot.send_message(message.chat.id, "Sticker pack not found or empty.", reply_to_message_id=message.message_id)
+    if FOUND_SOSAL:
+        bot.send_message(message.chat.id, "lasos", reply_to_message_id=message.message_id)
+
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
