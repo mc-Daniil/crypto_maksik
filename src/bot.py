@@ -16,7 +16,6 @@ except Exception as e:
 
 @bot.message_handler(func=lambda message: True)
 def check_message(message):
-    print(message)
     text_lower = message.text.lower()
     
     KEYWORDS_LASOS = ['ласос', 'lasos', 'losos', 'лосось']
