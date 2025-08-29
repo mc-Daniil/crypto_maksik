@@ -31,7 +31,7 @@ def check_message(message):
         if kw in text_lower:
             FOUND_MAX = True
             break
-    KEYWORDS_SOSAL = ['сосал', 'sosal']
+    KEYWORDS_SOSAL = ['сос', 'sos']
     FOUND_SOSAL = None
     for kw in KEYWORDS_SOSAL:
         if kw in text_lower:
