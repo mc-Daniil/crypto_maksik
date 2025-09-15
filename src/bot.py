@@ -31,12 +31,21 @@ def check_message(message):
         if kw in text_lower:
             FOUND_MAX = True
             break
+        
     KEYWORDS_SOSAL = ['сос', 'sos']
     FOUND_SOSAL = None
     for kw in KEYWORDS_SOSAL:
         if kw in text_lower:
             FOUND_SOSAL = True
             break
+        
+    KEYWORDS_SOSYR = ['сосыр']
+    FOUND_SOSYR = None
+    for kw in KEYWORDS_SOSYR:
+        if kw in text_lower:
+            FOUND_SOSYR = True
+            break
+        
     if FOUND_MAX:
         if sticker_file_ids:
             sticker = random.choice(sticker_file_ids)
@@ -47,10 +56,19 @@ def check_message(message):
             )
         else:
             bot.send_message(message.chat.id, "Sticker pack not found or empty.", reply_to_message_id=message.message_id)
+            
     if FOUND_SOSAL:
         bot.send_message(message.chat.id, "lasos", reply_to_message_id=message.message_id)
     if FOUND_LASOS:
         with open('lasos.jpg', 'rb') as photo:
+            bot.send_photo(
+                message.chat.id,
+                photo,
+                reply_to_message_id=message.message_id
+            )
+            
+    if FOUND_SOSYR:
+        with open('sosyr.jpg', 'rb') as photo:
             bot.send_photo(
                 message.chat.id,
                 photo,
