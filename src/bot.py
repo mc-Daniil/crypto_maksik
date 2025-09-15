@@ -89,7 +89,6 @@ async def check_message(message: types.Message):
                 found=found,
                 position=position,
             )
-            return
 
     # MAX
     for kw in KEYWORDS_MAX:
@@ -131,7 +130,6 @@ async def check_message(message: types.Message):
                         quote_position=len(text[:position]),
                     ),
                 )
-            return
         
     # SOSYR
     for kw in KEYWORDS_SOSYR:
@@ -147,7 +145,6 @@ async def check_message(message: types.Message):
                 found=found,
                 position=position,
             )
-            return
 
     # SOSAL
     for kw in KEYWORDS_SOSAL:
@@ -164,7 +161,6 @@ async def check_message(message: types.Message):
                     quote_position=len(text[:position]),
                 ),
             )
-            return
 
 
 async def main():
