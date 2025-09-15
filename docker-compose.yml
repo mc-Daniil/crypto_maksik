@@ -1,5 +1,12 @@
+version: '3.8'
+
 services:
   maks-bot:
     build: .
     container_name: maks-bot
     restart: always
+    working_dir: /app
+    volumes:
+      - ./src:/app   # удобно, чтобы не пересобирать образ при изменении кода
+    environment:
+      - TZ=Europe/Moscow  # пример: часовой пояс, можно убрать/поменять
