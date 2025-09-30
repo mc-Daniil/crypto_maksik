@@ -97,7 +97,9 @@ async def check_message(message: types.Message):
             found = match.group(0)
             position = match.start()
             found_safe = html.escape(found)
-            if sticker_file_ids:
+            maks_path = module_file_path('maks.jpg')
+            send_sticker = sticker_file_ids and random.choice([True, False])
+            if send_sticker:
                 sticker = random.choice(sticker_file_ids)
                 try:
                     await bot.send_sticker(
@@ -110,25 +112,21 @@ async def check_message(message: types.Message):
                         ),
                     )
                 except Exception:
-                    logging.exception("Failed to send sticker")
-                    await bot.send_message(
+                    logging.exception("Failed to send sticker, sending maks.jpg instead")
+                    await safe_send_photo(
                         chat_id=message.chat.id,
-                        text="Ошибка при отправке стикера.",
-                        reply_parameters=ReplyParameters(
-                            message_id=message.message_id,
-                            quote=found_safe,
-                            quote_position=len(text[:position]),
-                        ),
+                        path=maks_path,
+                        message_id=message.message_id,
+                        found=found,
+                        position=position,
                     )
             else:
-                await bot.send_message(
+                await safe_send_photo(
                     chat_id=message.chat.id,
-                    text="Sticker pack not found or empty.",
-                    reply_parameters=ReplyParameters(
-                        message_id=message.message_id,
-                        quote=found_safe,
-                        quote_position=len(text[:position]),
-                    ),
+                    path=maks_path,
+                    message_id=message.message_id,
+                    found=found,
+                    position=position,
                 )
         
     # SOSYR
@@ -161,6 +159,8 @@ async def check_message(message: types.Message):
                     quote_position=len(text[:position]),
                 ),
             )
+            
+    return
 
 
 async def main():
