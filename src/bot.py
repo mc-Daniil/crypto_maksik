@@ -160,6 +160,23 @@ async def check_message(message: types.Message):
                 ),
             )
             
+    # CRYPT
+    if 'крипт' in text.lower() and len(sticker_file_ids) > 18:
+        found = 'крипт'
+        position = text.lower().find(found)
+        found_safe = html.escape(found)
+        sticker = sticker_file_ids[18]
+        await bot.send_sticker(
+            chat_id=message.chat.id,
+            sticker=sticker,
+            reply_parameters=ReplyParameters(
+                message_id=message.message_id,
+                quote=found_safe,
+                quote_position=position,
+            ),
+        )
+        return
+    
     return
 
 
