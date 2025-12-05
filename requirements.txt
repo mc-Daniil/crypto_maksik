@@ -1,3 +1,1 @@
-pyTelegramBotAPI
-requests
-python-dotenv
+aiogram~=3.22.0

@@ -1,17 +1,17 @@
+import html
 import logging
 import random
 import re
-from pathlib import Path
 import traceback
-import html
+from pathlib import Path
 
 from aiogram import Bot, Dispatcher, types
-from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
 from aiogram import Router
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.types import ReplyParameters, FSInputFile
 
-from config import BOT_TOKEN, STICKER_PACK_ID
+from config import BOT_TOKEN, KEYWORD_RULES, STICKER_PACKS_ID
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -19,21 +19,22 @@ dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
-sticker_file_ids = []
+prefetched_stickerpacks = {}
+
+
 async def fetch_stickers():
-    global sticker_file_ids
-    try:
-        sticker_set = await bot.get_sticker_set(STICKER_PACK_ID)
-        sticker_file_ids = [sticker.file_id for sticker in sticker_set.stickers]
-        logging.info("Fetched %d stickers from %s", len(sticker_file_ids), STICKER_PACK_ID)
-    except Exception as e:
-        logging.exception("Error fetching sticker set '%s'", STICKER_PACK_ID)
+    global prefetched_stickerpacks
 
+    for stickerpack_id in STICKER_PACKS_ID:
+        try:
+            sticker_set = await bot.get_sticker_set(stickerpack_id)
+            sticker_ids = [sticker.file_id for sticker in sticker_set.stickers]
 
-KEYWORDS_LASOS = ['ласос', 'lasos', 'losos', 'лосос']
-KEYWORDS_MAX = ['макс', 'max']
-KEYWORDS_SOSAL = ['сос', 'sos']
-KEYWORDS_SOSYR = ['сосыр']
+            prefetched_stickerpacks[stickerpack_id] = sticker_ids
+
+            logging.info("Fetched %d stickers from %s", len(prefetched_stickerpacks), stickerpack_id)
+        except Exception as e:
+            logging.exception("Error fetching sticker set '%s'", stickerpack_id)
 
 
 def module_file_path(filename: str) -> Path:
@@ -73,111 +74,46 @@ async def safe_send_photo(chat_id: int, path: Path, message_id: int, found: str,
 
 @router.message()
 async def check_message(message: types.Message):
-    text = message.text or ""
+    message_text = message.text or ""
 
-    # LASOS
-    for kw in KEYWORDS_LASOS:
-        match = re.search(re.escape(kw), text, re.IGNORECASE)
-        if match:
-            found = match.group(0)
-            position = match.start()
-            lasos_path = module_file_path('lasos.jpg')
-            await safe_send_photo(
-                chat_id=message.chat.id,
-                path=lasos_path,
-                message_id=message.message_id,
-                found=found,
-                position=position,
-            )
+    for message_rule in KEYWORD_RULES:
+        for keyword in message_rule["keywords"]:
+            keyword_found_in_message = re.search(re.escape(keyword), message_text, re.IGNORECASE)
+            if keyword_found_in_message:
+                found = keyword_found_in_message.group(0)
+                position = keyword_found_in_message.start()
+                file_path = module_file_path(message_rule["file"])
+                stickerpack_id = message_rule.get("stickerpack_id", None)
 
-    # MAX
-    for kw in KEYWORDS_MAX:
-        match = re.search(re.escape(kw), text, re.IGNORECASE)
-        if match:
-            found = match.group(0)
-            position = match.start()
-            found_safe = html.escape(found)
-            maks_path = module_file_path('maks.jpg')
-            send_sticker = sticker_file_ids and random.choice([True, False])
-            if send_sticker:
-                sticker = random.choice(sticker_file_ids)
-                try:
-                    await bot.send_sticker(
-                        chat_id=message.chat.id,
-                        sticker=sticker,
-                        reply_parameters=ReplyParameters(
-                            message_id=message.message_id,
-                            quote=found_safe,
-                            quote_position=len(text[:position]),
-                        ),
-                    )
-                except Exception:
-                    logging.exception("Failed to send sticker, sending maks.jpg instead")
-                    await safe_send_photo(
-                        chat_id=message.chat.id,
-                        path=maks_path,
-                        message_id=message.message_id,
-                        found=found,
-                        position=position,
-                    )
-            else:
+                # Send sticker if available. If no -> send image.
+
+                if stickerpack_id:
+                    found_safe = html.escape(found)
+                    send_sticker = random.choice([True, False])
+                    if send_sticker:
+                        sticker = random.choice(prefetched_stickerpacks[stickerpack_id])
+                        try:
+                            await bot.send_sticker(
+                                chat_id=message.chat.id,
+                                sticker=sticker,
+                                reply_parameters=ReplyParameters(
+                                    message_id=message.message_id,
+                                    quote=found_safe,
+                                    quote_position=len(message_text[:position]),
+                                ),
+                            )
+                            return
+                        except Exception:
+                            logging.exception("Failed to send sticker, sending image instead")
+
                 await safe_send_photo(
                     chat_id=message.chat.id,
-                    path=maks_path,
+                    path=file_path,
                     message_id=message.message_id,
                     found=found,
                     position=position,
                 )
-        
-    # SOSYR
-    for kw in KEYWORDS_SOSYR:
-        match = re.search(re.escape(kw), text, re.IGNORECASE)
-        if match:
-            found = match.group(0)
-            position = match.start()
-            sosyr_path = module_file_path('sosyr.jpg')
-            await safe_send_photo(
-                chat_id=message.chat.id,
-                path=sosyr_path,
-                message_id=message.message_id,
-                found=found,
-                position=position,
-            )
-
-    # SOSAL
-    for kw in KEYWORDS_SOSAL:
-        match = re.search(re.escape(kw), text, re.IGNORECASE)
-        if match:
-            found = match.group(0)
-            position = match.start()
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text="lasos",
-                reply_parameters=ReplyParameters(
-                    message_id=message.message_id,
-                    quote=html.escape(found),
-                    quote_position=len(text[:position]),
-                ),
-            )
-            
-    # CRYPT
-    if 'крипт' in text.lower() and len(sticker_file_ids) > 18:
-        found = 'крипт'
-        position = text.lower().find(found)
-        found_safe = html.escape(found)
-        sticker = sticker_file_ids[18]
-        await bot.send_sticker(
-            chat_id=message.chat.id,
-            sticker=sticker,
-            reply_parameters=ReplyParameters(
-                message_id=message.message_id,
-                quote=found_safe,
-                quote_position=position,
-            ),
-        )
-        return
-    
-    return
+                return
 
 
 async def main():
@@ -187,6 +123,7 @@ async def main():
 
 if __name__ == '__main__':
     import asyncio
+
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

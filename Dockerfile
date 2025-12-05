@@ -1,13 +1,14 @@
-FROM python:3.11-slim
+FROM python:3.11-slim@sha256:193fdd0bbcb3d2ae612bd6cc3548d2f7c78d65b549fcaa8af75624c47474444d
 
-# Рабочая директория
 WORKDIR /app
 
-# Копируем код
-COPY ./src /app
+RUN adduser appuser
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir aiogram pyTelegramBotAPI
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Запускаем бота
+COPY src .
+
+USER appuser
+
 CMD ["python", "bot.py"]
